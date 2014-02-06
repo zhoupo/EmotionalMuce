@@ -1,0 +1,39 @@
+{
+    "name": "EmotionalMuce",
+    "version": "0.0.0",
+    "description": "Emotional Muce. ",
+    "dependencies": {
+        "sails": "0.9.8",
+        "sails-mongo": "0.9.7",
+        "ejs": "0.8.5",
+        "optimist": "0.6.0"
+    },
+    "devDependencies": {
+        "grunt": "0.4.2",
+        "sails": "0.9.8",
+        "sails-mongo": "0.9.7",
+        "ejs": "0.8.5",
+        "matchdep" : "0.3.0",
+        "grunt-concurrent" : "0.3.1",
+        "grunt-open" : "0.2.3",
+        "grunt-contrib-copy" : "0.5.0",
+        "grunt-contrib-clean" : "0.5.0",
+        "grunt-contrib-watch" : "0.5.3",
+        "grunt-contrib-connect" : "0.6.0",
+        "grunt-contrib-jshint": "0.8.0",
+        "grunt-bump" : "0.0.13",
+        "grunt-nodemon" : "0.1.2",
+        "grunt-node-inspector" : "0.1.2"
+    },
+    "scripts": {
+        "start": "node app.js",
+        "debug": "node debug app.js"
+    },
+    "main": "app.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/wandoulabs/EmotionalMuce.git"
+    },
+    "author": "wangye.zhao@wandoujia.com",
+    "license": "MIT"
+}

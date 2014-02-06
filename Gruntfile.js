@@ -1,11 +1,5 @@
 'use strict';
 
-var lrSnippet = require('connect-livereload')();
-
-var mountFolder = function (connect, dir) {
-    return connect.static(require('path').resolve(dir));
-};
-
 module.exports = function (grunt) {
     // load all grunt tasks
     require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
@@ -21,51 +15,10 @@ module.exports = function (grunt) {
     grunt.initConfig({
         paths : pathConfig,
         watch : {
-            compass : {
-                files : ['<%= paths.app %>/compass/{,*/}*/{,*/}*.{scss,sass,png,ttf,otf}'],
-                tasks : ['compass:server']
-            },
-            test : {
-                files : ['<%= paths.app %>/javascripts/**/*.js'],
-                tasks : ['jshint:test', 'karma:server:run'],
-                options : {
-                    spawn : false
-                }
-            },
-            livereload: {
-                files: [
-                    '<%= paths.app %>/**/*.html',
-                    '<%= paths.app %>/javascripts/**/*.js',
-                    '<%= paths.app %>/images/**/*.{webp,jpg,jpeg,png,gif,ttf,otf}',
-                    '<%= paths.tmp %>/stylesheets/**/*.css',
-                    '<%= paths.tmp %>/images/**/*.{webp,jpg,jpeg,png,gif,ttf,otf}'
-                ],
-                options : {
-                    livereload : true,
-                    spawn : false
-                }
-            }
-        },
-        connect : {
-            options : {
-                port : 9999,
-                hostname : '0.0.0.0'
-            },
-            server : {
-                options : {
-                    middleware : function (connect) {
-                        return [
-                            lrSnippet,
-                            mountFolder(connect, pathConfig.tmp),
-                            mountFolder(connect, pathConfig.app)
-                        ];
-                    }
-                }
-            }
         },
         open: {
             server : {
-                path : 'http://127.0.0.1:<%= connect.options.port %>',
+                path : 'http://127.0.0.1:1337/debug?port=5858',
                 app : 'Google Chrome Canary'
             }
         },
@@ -171,39 +124,15 @@ module.exports = function (grunt) {
             }
         },
         concurrent: {
-            dist : ['copy:dist', 'compass:dist']
+            server : {
+                tasks : ['nodemon:dev', 'node-inspector', 'watch'],
+                options : {
+                    logConcurrentOutput: true
+                }
+            }
         },
         jshint : {
             test : ['<%= paths.app %>/javascripts/**/*.js']
-        },
-        karma : {
-            options : {
-                configFile : '<%= paths.test %>/karma.conf.js',
-                browsers : ['Chrome_without_security']
-            },
-            server : {
-                reporters : ['progress'],
-                background : true
-            },
-            test : {
-                reporters : ['progress', 'junit', 'coverage'],
-                preprocessors : {
-                    '<%= paths.app %>/javascripts/**/*.js' : 'coverage'
-                },
-                junitReporter : {
-                    outputFile : '<%= paths.test %>/output/test-results.xml'
-                },
-                coverageReporter : {
-                    type : 'html',
-                    dir : '<%= paths.test %>/output/coverage/'
-                },
-                singleRun : true
-            },
-            travis : {
-                browsers : ['PhantomJS'],
-                reporters : ['progress'],
-                singleRun : true
-            }
         },
         bump : {
             options : {
@@ -217,38 +146,35 @@ module.exports = function (grunt) {
                 tagMessage : 'Version %VERSION%',
                 push : false
             }
+        },
+        nodemon : {
+            dev : {
+                options : {
+                    file : 'app.js',
+                    nodeArgs : ['--debug=5859'],
+                    env : {
+                        PORT : '1337'
+                    }
+                }
+            }
+        },
+        'node-inspector' : {
+            custom : {
+                options : {
+                    'web-port' : 8889,
+                    'web-host' : 'localhost',
+                    'debug-port' : 5859,
+                    'save-live-edit' : true,
+                    'stack-trace-limit' : 4
+                }
+            }
         }
     });
 
     grunt.registerTask('server', [
-        'clean:server',
-        'compass:server',
-        'connect:server',
-        'karma:server',
-        'open',
-        'watch'
+        'concurrent:server',
+        'open'
     ]);
 
-    grunt.registerTask('test', [
-        'jshint:test',
-        'karma:test'
-    ]);
-
-    grunt.registerTask('test:travis', [
-        'jshint:test',
-        'karma:travis'
-    ]);
-
-    grunt.registerTask('build', [
-        'clean:dist',
-        'concurrent:dist',
-        'useminPrepare',
-        'concat',
-        'uglify',
-        // 'requirejs:dist', // Uncomment this line if using RequireJS in your project
-        'imagemin',
-        'htmlmin',
-        'rev',
-        'usemin'
-    ]);
+    grunt.registerTask('default', []);
 };
